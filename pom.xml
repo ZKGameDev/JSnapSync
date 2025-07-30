@@ -7,7 +7,7 @@
     <!-- 基础信息 -->
     <groupId>top.kgame</groupId>
     <artifactId>kgame-lib-snapshot</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>JSnapSync</name>
