@@ -26,6 +26,12 @@ public class ReplicatedReader {
     public byte readByte() {
         return byteBuf.readByte();
     }
+    public char readChar() {
+        return byteBuf.readChar();
+    }
+    public short readShort() {
+        return byteBuf.readShort();
+    }
     public int readInteger() {
         return ReplicatedUtil.readVarInt(byteBuf);
     }
@@ -37,6 +43,12 @@ public class ReplicatedReader {
     }
     public double readDouble() {
         return byteBuf.readDouble();
+    }
+    public byte[] readByteArray() {
+        int length = readInteger();
+        byte[] bytes = new byte[length];
+        byteBuf.readBytes(bytes);
+        return bytes;
     }
     public String readString() {
         int length = byteBuf.readInt();

@@ -35,14 +35,21 @@ public class ReplicatedWriter {
         byteBuf.writeBoolean(value);
     }
 
+    public void writeChar(char value) {
+        byteBuf.writeChar(value);
+    }
+
     public void writeByte(byte value) {
         byteBuf.writeByte(value);
+    }
+
+    public void writeShort(short value) {
+        byteBuf.writeShort(value);
     }
 
     public void writeInteger(int value) {
         ReplicatedUtil.writeVarInt(byteBuf, value);
     }
-
 
     public void writeLong(long value) {
         byteBuf.writeLong(value);
@@ -55,7 +62,8 @@ public class ReplicatedWriter {
         byteBuf.writeDouble(value);
     }
 
-    public void writeBytes(byte[] bytes) {
+    public void writeByteArray(byte[] bytes) {
+        writeInteger(bytes.length);
         byteBuf.writeBytes(bytes);
     }
 
