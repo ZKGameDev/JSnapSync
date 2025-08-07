@@ -51,13 +51,13 @@ public class ReplicatedReader {
         return bytes;
     }
     public String readString() {
-        int length = byteBuf.readInt();
+        int length = readInteger();
         byte[] data = SnapshotTools.byteBufToByteArray(byteBuf.readBytes(length));
         return new String(data, StandardCharsets.UTF_8);
     }
 
     public List<Integer> readIntList() {
-        int size = byteBuf.readInt();
+        int size = readInteger();
         if (0 == size) {
             return Collections.emptyList();
         }
@@ -88,7 +88,7 @@ public class ReplicatedReader {
     }
 
     public List<Long> readLongList() {
-        int size = byteBuf.readInt();
+        int size = readInteger();
         if (0 == size) {
             return Collections.emptyList();
         }
@@ -100,7 +100,7 @@ public class ReplicatedReader {
     }
 
     public List<Float> readFloatList() {
-        int size = byteBuf.readInt();
+        int size = readInteger();
         if (0 == size) {
             return Collections.emptyList();
         }
@@ -112,7 +112,7 @@ public class ReplicatedReader {
     }
 
     public List<Double> readDoubleList() {
-        int size = byteBuf.readInt();
+        int size = readInteger();
         if (0 == size) {
             return Collections.emptyList();
         }
@@ -124,7 +124,7 @@ public class ReplicatedReader {
     }
 
     public List<String> readStringList() {
-        int size = byteBuf.readInt();
+        int size = readInteger();
         if (0 == size) {
             return Collections.emptyList();
         }
