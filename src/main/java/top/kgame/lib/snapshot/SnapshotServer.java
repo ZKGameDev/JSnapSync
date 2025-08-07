@@ -1,14 +1,10 @@
 package top.kgame.lib.snapshot;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import top.kgame.lib.snapshot.core.EntitySnapshotTracker;
-import top.kgame.lib.snapshot.tools.SnapshotTools;
 
 import java.util.*;
 
 public abstract class SnapshotServer {
-    private final ByteBuf output = Unpooled.buffer(10240);
     private int serverSequence = 1;
     private final Set<Integer> createIds = new HashSet<>();
     private final Map<Integer, EntitySnapshotTracker> replicateInfoMap = new TreeMap<>();
@@ -100,8 +96,7 @@ public abstract class SnapshotServer {
 
     private void broadcastSnapshot() {
         for (SnapshotConnection connection : getAllConnection()) {
-            SnapshotTools.resetByteBuf(output);
-            connection.sendPackage(output, serverSequence);
+            connection.sendPackage(serverSequence);
         }
     }
 

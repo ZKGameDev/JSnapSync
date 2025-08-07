@@ -89,8 +89,8 @@ public class EntitySnapshotTracker {
         return newSnapshot.isSame(preSnapshot);
     }
 
-    public byte[] getSnapshot(ByteBuf byteBuf, int sendSequence) {
-        return componentSnapshotBuffer.getSnapshotByteData(byteBuf, sendSequence);
+    public byte[] getSnapshot(int sendSequence) {
+        return componentSnapshotBuffer.getSnapshotByteData(sendSequence);
     }
 
     @Override
@@ -105,21 +105,20 @@ public class EntitySnapshotTracker {
 
     /**
      * 生成增量快照数据
-     * @param output 用于序列化的ByteBuf，使用完后会调用reset
      * @param baseLine 用于对比的基准快照Id
      * @param sendSequence 发送数据的快照id
      * @return 增量快照的完整byte数据。包括id type size等字段。 如果与基准快照完全一致则返回null
      */
-    public byte[] generateAdditionSnapshot(ByteBuf output, int baseLine, int sendSequence) {
+    public byte[] generateAdditionSnapshot(int baseLine, int sendSequence) {
         Snapshot preSnapshot = componentSnapshotBuffer.getSnapshot(baseLine);
         Snapshot newSnapshot = componentSnapshotBuffer.getSnapshot(sendSequence);
         if (null == preSnapshot) {
-            return newSnapshot.getFullSnapshot(output);
+            return newSnapshot.getFullSnapshot();
         }
         if (null == newSnapshot) {
             return null;
         }
-        return newSnapshot.generateAdditionData(output, preSnapshot);
+        return newSnapshot.generateAdditionData(preSnapshot);
     }
 
     public SerializeEntity getEntity() {

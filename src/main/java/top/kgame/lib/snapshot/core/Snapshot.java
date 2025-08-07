@@ -30,7 +30,8 @@ class Snapshot {
         writer.reset();
     }
 
-    byte[] getFullSnapshot(ByteBuf byteBuf) {
+    byte[] getFullSnapshot() {
+        ByteBuf byteBuf = SnapshotTools.getByteBuf(SnapshotTools.BYTE_BUF_SIZE_MIDDLE);
         byteBuf.writeBytes(head);
         ReplicatedUtil.writeVarInt(byteBuf, componentData.size());
         for (byte[] data : componentData.values()) {
@@ -75,13 +76,12 @@ class Snapshot {
 
     /**
      * 生成增量快照数据
-     * @param byteBuf 用于序列化的ByteBuf，使用完后会调用reset
      * @param preSnapshot 用于对比的基准快照。
      * @return  增量快照的完整byte数据。包括id type size等字段。 如果与基准快照完全一致则返回null
      */
-    byte[] generateAdditionData(ByteBuf byteBuf, Snapshot preSnapshot) {
+    byte[] generateAdditionData(Snapshot preSnapshot) {
         if (preSnapshot == null) {
-            return getFullSnapshot(byteBuf);
+            return getFullSnapshot();
         }
         List<byte[]> additionData = new ArrayList<>();
         for (int typeId : getComponentTypes()) {
@@ -95,6 +95,7 @@ class Snapshot {
             return null;
         }
 
+        ByteBuf byteBuf = SnapshotTools.getByteBuf(SnapshotTools.BYTE_BUF_SIZE_SMALL);
         byteBuf.writeBytes(head);
         ReplicatedUtil.writeVarInt(byteBuf,additionData.size());
         for (byte[] data : additionData) {

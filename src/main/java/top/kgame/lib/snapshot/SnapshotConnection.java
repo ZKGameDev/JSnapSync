@@ -30,10 +30,9 @@ public abstract class SnapshotConnection {
 
     /**
      * 根据参数提供的序列号发送快照数据。如果上次ack的序列号与目标序列号插值小于buffer大小则发送差异快照，否则发送全量快照
-     * @param output 字节流对象
      * @param targetSequence 目标序列号
      */
-    public void sendPackage(ByteBuf output, int targetSequence) {
+    public void sendPackage(int targetSequence) {
         if (targetSequence > snapshotServer.getSequence()) {
             throw new IllegalArgumentException("targetSequence > snapshotServer.getSequence. invalid targetSequence: " + targetSequence);
         }
@@ -43,9 +42,9 @@ public abstract class SnapshotConnection {
             baseLine = Integer.MIN_VALUE;
         }
         if (baseLine > 0) {
-            sendAdditionSnapshot(output, baseLine, targetSequence);
+            sendAdditionSnapshot(baseLine, targetSequence);
         } else {
-            sendFullSnapshot(output, targetSequence);
+            sendFullSnapshot(targetSequence);
         }
         if (targetSequence > lastSnapshotAck) {
             lastSnapshotAck = targetSequence;
@@ -53,8 +52,7 @@ public abstract class SnapshotConnection {
     }
 
     //发送全量快照
-    private void sendFullSnapshot(ByteBuf output, int serverSequence) {
-        SnapshotTools.resetByteBuf(output);
+    private void sendFullSnapshot(int serverSequence) {
         List<byte[]> updateEntity = new ArrayList<>();
         for (EntitySnapshotTracker entityInfo : snapshotServer.getAllReplicateEntity()) {
             if (entityInfo.getCreateSequence() == 0) {
@@ -64,19 +62,20 @@ public abstract class SnapshotConnection {
             if (destroyed) {
                 continue;
             }
-            updateEntity.add(entityInfo.getSnapshot(output, serverSequence));
+            updateEntity.add(entityInfo.getSnapshot(serverSequence));
         }
-        SnapshotTools.resetByteBuf(output);
-        ReplicatedUtil.writeVarInt(output, updateEntity.size());
+
+        ByteBuf byteBuf = SnapshotTools.getByteBuf(SnapshotTools.BYTE_BUF_SIZE_LARGE);
+        ReplicatedUtil.writeVarInt(byteBuf, updateEntity.size());
         for (byte[] info : updateEntity) {
-            output.writeBytes(info);
+            byteBuf.writeBytes(info);
         }
-        byte[] updateBytes = SnapshotTools.byteBufToByteArray(output);
+        byte[] updateBytes = SnapshotTools.byteBufToByteArray(byteBuf);
         sendFullSnapshot(inSequence, outSequence, updateBytes, snapshotServer.getCreateReplicateId());
     }
 
     //发送增量快照
-    private void sendAdditionSnapshot(ByteBuf output, int baseLine, int serverSequence){
+    private void sendAdditionSnapshot(int baseLine, int serverSequence){
         List<Integer> destroyIds = new ArrayList<>();
         List<byte[]> updateEntity = new ArrayList<>();
         for (EntitySnapshotTracker entityInfo : snapshotServer.getAllReplicateEntity()) {
@@ -91,7 +90,7 @@ public abstract class SnapshotConnection {
             if (destroyed) {
                 sendSequence = Math.max(entityInfo.getCreateSequence(), entityInfo.getDestroySequence());
             }
-            byte[] additionSnapshot = entityInfo.generateAdditionSnapshot(output, baseLine, sendSequence);
+            byte[] additionSnapshot = entityInfo.generateAdditionSnapshot(baseLine, sendSequence);
             if (additionSnapshot != null) {
                 updateEntity.add(additionSnapshot);
             }
@@ -100,12 +99,12 @@ public abstract class SnapshotConnection {
             }
         }
 
-        SnapshotTools.resetByteBuf(output);
-        ReplicatedUtil.writeVarInt(output, updateEntity.size());
+        ByteBuf byteBuf = SnapshotTools.getByteBuf(SnapshotTools.BYTE_BUF_SIZE_BIG);
+        ReplicatedUtil.writeVarInt(byteBuf, updateEntity.size());
         for (byte[] info : updateEntity) {
-            output.writeBytes(info);
+            byteBuf.writeBytes(info);
         }
-        byte[] updateBytes = SnapshotTools.byteBufToByteArray(output);
+        byte[] updateBytes = SnapshotTools.byteBufToByteArray(byteBuf);
 
         sendAdditionSnapshot(inSequence, outSequence, updateBytes, snapshotServer.getCreateReplicateId(), destroyIds);
     }

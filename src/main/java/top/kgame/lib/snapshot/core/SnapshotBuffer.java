@@ -29,16 +29,16 @@ class SnapshotBuffer {
         return sequencesCache[getIndex(sequence)] == sequence;
     }
 
-    public byte[] getSnapshotByteData(ByteBuf byteBuf, int sequence) {
+    public byte[] getSnapshotByteData(int sequence) {
         Snapshot snapshot = getSnapshot(sequence);
         if (null != snapshot) {
-            return generateByteArray(byteBuf, snapshot);
+            return generateByteArray(snapshot);
         }
         return null;
     }
 
-    private byte[] generateByteArray(ByteBuf byteBuf, Snapshot snapshot) {
-        return snapshot.getFullSnapshot(byteBuf);
+    private byte[] generateByteArray(Snapshot snapshot) {
+        return snapshot.getFullSnapshot();
     }
 
     public void remove(int sequence) {
