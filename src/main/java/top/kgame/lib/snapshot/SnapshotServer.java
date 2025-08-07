@@ -12,8 +12,18 @@ public abstract class SnapshotServer {
     private int serverSequence = 1;
     private final Set<Integer> createIds = new HashSet<>();
     private final Map<Integer, EntitySnapshotTracker> replicateInfoMap = new TreeMap<>();
+    private final List<SnapshotConnection> connections = new ArrayList<>();
 
-    protected abstract Collection<SnapshotConnection> getAllConnection();
+    private Collection<SnapshotConnection> getAllConnection() {
+        return connections;
+    }
+
+    public void registerConnection(final SnapshotConnection connection) {
+        if (null == connection) {
+            return;
+        }
+        connections.add(connection);
+    }
 
     public void registerEntity(SerializeEntity entity) {
         EntitySnapshotTracker replicateInfo = EntitySnapshotTracker.generate(entity);
@@ -80,7 +90,7 @@ public abstract class SnapshotServer {
     private int calMinClientAck() {
         int minClientAck = Integer.MAX_VALUE;
         for (SnapshotConnection connection : getAllConnection()) {
-            int ackedSequence = connection.getMaxSnapshotAck();
+            int ackedSequence = connection.getLastSnapshotAck();
             if (ackedSequence < minClientAck) {
                 minClientAck = ackedSequence;
             }
@@ -91,7 +101,19 @@ public abstract class SnapshotServer {
     private void broadcastSnapshot() {
         for (SnapshotConnection connection : getAllConnection()) {
             SnapshotTools.resetByteBuf(output);
-            connection.sendPackage(output, serverSequence, replicateInfoMap, createIds);
+            connection.sendPackage(output, serverSequence);
         }
+    }
+
+    public int getSequence() {
+        return serverSequence;
+    }
+
+    public Collection<EntitySnapshotTracker> getAllReplicateEntity() {
+        return replicateInfoMap.values();
+    }
+
+    public Collection<Integer> getCreateReplicateId() {
+        return createIds;
     }
 }

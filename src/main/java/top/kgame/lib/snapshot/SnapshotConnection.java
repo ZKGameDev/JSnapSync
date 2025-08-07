@@ -11,61 +11,52 @@ import top.kgame.lib.snapshot.tools.ReplicatedUtil;
 
 import java.util.*;
 
-
 public abstract class SnapshotConnection {
     private static final Logger logger = LogManager.getLogger(SnapshotConnection.class);
 
     private final DeserializeFactory deserializeFactory;
-
+    private final SnapshotServer snapshotServer;
     private final long uid;
+
     private int inSequence;
     private int outSequence;
-    private int maxSnapshotAck;
+    private int lastSnapshotAck;
 
-    public SnapshotConnection(long uid, DeserializeFactory deserializeFactory) {
+    public SnapshotConnection(long uid, DeserializeFactory deserializeFactory, SnapshotServer snapshotServer) {
         this.uid = uid;
         this.deserializeFactory = deserializeFactory;
+        this.snapshotServer = snapshotServer;
     }
 
-    public int getInSequence() {
-        return inSequence;
-    }
-
-    public void setInSequence(int inSequence) {
-        this.inSequence = inSequence;
-    }
-
-    public int getOutSequence() {
-        return outSequence;
-    }
-
-    public void setOutSequence(int outSequence) {
-        this.outSequence = outSequence;
-    }
-
-    public void sendPackage(ByteBuf output, int serverSequence, Map<Integer, EntitySnapshotTracker> replicateInfoMap, Set<Integer> createIds) {
-        outSequence = serverSequence;
-        boolean hasBaseLine = maxSnapshotAck != 0;
-        if (serverSequence - maxSnapshotAck > SnapshotConfig.SnapshotBufferSize) {
-            hasBaseLine = false;
+    /**
+     * 根据参数提供的序列号发送快照数据。如果上次ack的序列号与目标序列号插值小于buffer大小则发送差异快照，否则发送全量快照
+     * @param output 字节流对象
+     * @param targetSequence 目标序列号
+     */
+    public void sendPackage(ByteBuf output, int targetSequence) {
+        if (targetSequence > snapshotServer.getSequence()) {
+            throw new IllegalArgumentException("targetSequence > snapshotServer.getSequence. invalid targetSequence: " + targetSequence);
         }
-        int baseLine = 0;
-        if (hasBaseLine) {
-            baseLine = maxSnapshotAck;
-            sendAdditionSnapshot(output, baseLine, serverSequence, replicateInfoMap, createIds);
+        outSequence = targetSequence;
+        int baseLine = lastSnapshotAck;
+        if (targetSequence - lastSnapshotAck > SnapshotConfig.SnapshotBufferSize) {
+            baseLine = Integer.MIN_VALUE;
+        }
+        if (baseLine > 0) {
+            sendAdditionSnapshot(output, baseLine, targetSequence);
         } else {
-            sendFullSnapshot(output, serverSequence, replicateInfoMap, createIds);
+            sendFullSnapshot(output, targetSequence);
         }
-        if (serverSequence > maxSnapshotAck) {
-            maxSnapshotAck = serverSequence;
+        if (targetSequence > lastSnapshotAck) {
+            lastSnapshotAck = targetSequence;
         }
     }
 
     //发送全量快照
-    public void sendFullSnapshot(ByteBuf output, int serverSequence, Map<Integer, EntitySnapshotTracker> replicateInfoMap, Set<Integer> createIds) {
+    private void sendFullSnapshot(ByteBuf output, int serverSequence) {
         SnapshotTools.resetByteBuf(output);
         List<byte[]> updateEntity = new ArrayList<>();
-        for (EntitySnapshotTracker entityInfo : replicateInfoMap.values()) {
+        for (EntitySnapshotTracker entityInfo : snapshotServer.getAllReplicateEntity()) {
             if (entityInfo.getCreateSequence() == 0) {
                 continue;
             }
@@ -81,14 +72,14 @@ public abstract class SnapshotConnection {
             output.writeBytes(info);
         }
         byte[] updateBytes = SnapshotTools.byteBufToByteArray(output);
-        sendFullSnapshot(inSequence, outSequence, updateBytes, createIds);
+        sendFullSnapshot(inSequence, outSequence, updateBytes, snapshotServer.getCreateReplicateId());
     }
 
     //发送增量快照
-    private void sendAdditionSnapshot(ByteBuf output, int baseLine, int serverSequence, Map<Integer, EntitySnapshotTracker> replicateInfoMap, Set<Integer> createIds){
+    private void sendAdditionSnapshot(ByteBuf output, int baseLine, int serverSequence){
         List<Integer> destroyIds = new ArrayList<>();
         List<byte[]> updateEntity = new ArrayList<>();
-        for (EntitySnapshotTracker entityInfo : replicateInfoMap.values()) {
+        for (EntitySnapshotTracker entityInfo : snapshotServer.getAllReplicateEntity()) {
             if (entityInfo.getCreateSequence() == 0) {
                 continue;
             }
@@ -116,7 +107,7 @@ public abstract class SnapshotConnection {
         }
         byte[] updateBytes = SnapshotTools.byteBufToByteArray(output);
 
-        sendAdditionSnapshot(inSequence, outSequence, updateBytes, createIds, destroyIds);
+        sendAdditionSnapshot(inSequence, outSequence, updateBytes, snapshotServer.getCreateReplicateId(), destroyIds);
     }
 
     /**
@@ -138,15 +129,17 @@ public abstract class SnapshotConnection {
      */
     protected abstract void sendFullSnapshot(int inSequence, int outSequence, byte[] updateBytes, Collection<Integer> createIds);
 
-    public int getMaxSnapshotAck() {
-        return maxSnapshotAck;
+    public int getLastSnapshotAck() {
+        return lastSnapshotAck;
     }
 
-    public void setMaxSnapshotAck(int maxSnapshotAck) {
-        this.maxSnapshotAck = maxSnapshotAck;
-    }
-
-    public void deserializer(byte[] byteArray) {
+    /**
+     * 反序列化输入数据
+     * @param inSequence 输入数据序列号
+     * @param byteArray 二进制数据
+     */
+    public void deserializer(int inSequence, byte[] byteArray) {
+        this.inSequence = inSequence;
         ByteBuf byteBuf = Unpooled.wrappedBuffer(byteArray);
         int size = ReplicatedUtil.readVarInt(byteBuf);
         ReplicatedReader reader = ReplicatedReader.getInstance(byteBuf);
@@ -157,9 +150,9 @@ public abstract class SnapshotConnection {
                         uid, inSequence, outSequence, i);
                 return;
             }
-            receive(entity);
+            receive(inSequence, entity);
         }
     }
 
-    protected abstract void receive(DeserializeEntity deserializeEntity);
+    protected abstract void receive(int inSequence, DeserializeEntity deserializeEntity);
 }
