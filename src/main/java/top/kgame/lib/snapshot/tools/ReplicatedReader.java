@@ -46,12 +46,18 @@ public class ReplicatedReader {
     }
     public byte[] readByteArray() {
         int length = readInteger();
+        if (length == 0) {
+            return null;
+        }
         byte[] bytes = new byte[length];
         byteBuf.readBytes(bytes);
         return bytes;
     }
     public String readString() {
         int length = readInteger();
+        if (length == 0) {
+            return null;
+        }
         byte[] data = SnapshotTools.byteBufToByteArray(byteBuf.readBytes(length));
         return new String(data, StandardCharsets.UTF_8);
     }

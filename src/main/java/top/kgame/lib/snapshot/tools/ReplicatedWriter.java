@@ -63,11 +63,19 @@ public class ReplicatedWriter {
     }
 
     public void writeByteArray(byte[] bytes) {
+        if (null == bytes) {
+            writeInteger(0);
+            return;
+        }
         writeInteger(bytes.length);
         byteBuf.writeBytes(bytes);
     }
 
     public void writeString(String value) {
+        if (null == value) {
+            writeInteger(0);
+            return;
+        }
         byte[] strBytes = value.getBytes(StandardCharsets.UTF_8);
         int length = strBytes.length;
         writeInteger(length);
