@@ -32,7 +32,13 @@ public class TestSyncComponent implements SerializeComponent, DeserializeCompone
         writer.writeDouble(f64);
         writer.writeByteArray(bs);
         writer.writeString(ss);
-        struct.serialize(writer);
+        if (struct == null) {
+            writer.writeInteger(-1);
+        } else {
+            writer.writeInteger(1);
+            struct.serialize(writer);
+        }
+
     }
 
     @Override
@@ -47,8 +53,13 @@ public class TestSyncComponent implements SerializeComponent, DeserializeCompone
         f64 = reader.readDouble();
         bs = reader.readByteArray();
         ss = reader.readString();
-        struct = new TestSyncStruct();
-        struct.deserialize(reader);
+        int objNullType = reader.readInteger();
+        if (objNullType < 0) {
+            struct = null;
+        } else {
+            struct = new TestSyncStruct();
+            struct.deserialize(reader);
+        }
     }
 
     @Override
