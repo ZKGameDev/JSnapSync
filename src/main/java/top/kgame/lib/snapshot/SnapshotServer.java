@@ -14,6 +14,10 @@ public abstract class SnapshotServer {
         return connections;
     }
 
+    /**
+     * 注册一个客户端连接
+     * @param connection 客户端连接对象
+     */
     public void registerConnection(final SnapshotConnection connection) {
         if (null == connection) {
             return;
@@ -21,6 +25,10 @@ public abstract class SnapshotServer {
         connections.add(connection);
     }
 
+    /**
+     * 注册一个需要同步的实体
+     * @param entity 要注册的实体对象
+     */
     public void registerEntity(SerializeEntity entity) {
         EntitySnapshotTracker replicateInfo = EntitySnapshotTracker.generate(entity);
         replicateInfo.setCreateSequence(serverSequence);
@@ -28,6 +36,11 @@ public abstract class SnapshotServer {
         createIds.add(entity.getGuid());
     }
 
+    /**
+     * 根据ID注销一个实体
+     * @param replicateId 实体的复制ID
+     * @return 被注销的实体对象，如果不存在则返回null
+     */
     public SerializeEntity unregisterEntity(int replicateId) {
         EntitySnapshotTracker replicateInfo = replicateInfoMap.get(replicateId);
         if (null == replicateInfo) {
@@ -37,6 +50,10 @@ public abstract class SnapshotServer {
         return replicateInfo.getEntity();
     }
 
+    /**
+     * 注销指定的实体对象
+     * @param entity 要注销的实体对象
+     */
     public void unregisterEntity(SerializeEntity entity) {
         EntitySnapshotTracker replicateInfo = replicateInfoMap.get(entity.getGuid());
         if (null == replicateInfo) {
@@ -100,14 +117,26 @@ public abstract class SnapshotServer {
         }
     }
 
+    /**
+     * 获取当前服务器序列号
+     * @return 当前服务器序列号
+     */
     public int getSequence() {
         return serverSequence;
     }
 
+    /**
+     * 获取所有已注册的实体快照跟踪器
+     * @return 实体快照跟踪器集合
+     */
     public Collection<EntitySnapshotTracker> getAllReplicateEntity() {
         return replicateInfoMap.values();
     }
 
+    /**
+     * 获取本次创建的实体ID集合
+     * @return 创建的实体ID集合
+     */
     public Collection<Integer> getCreateReplicateId() {
         return createIds;
     }
