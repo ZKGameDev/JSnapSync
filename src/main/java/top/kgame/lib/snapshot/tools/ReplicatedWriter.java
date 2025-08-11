@@ -35,44 +35,61 @@ public class ReplicatedWriter {
         byteBuf.writeBoolean(value);
     }
 
+    public void writeBooleanList(List<Boolean> value) {
+        if (null == value) {
+            writeInteger(-1);
+            return;
+        }
+        int length = value.size();
+        writeInteger(length);
+        for (boolean booleanValue : value) {
+            writeBoolean(booleanValue);
+        }
+    }
+
+    public void writeBooleanArray(boolean[] value) {
+        if (null == value) {
+            writeInteger(-1);
+            return;
+        }
+        writeInteger(value.length);
+        for (boolean booleanValue : value) {
+            writeBoolean(booleanValue);
+        }
+    }
+
     public void writeChar(char value) {
         byteBuf.writeChar(value);
     }
 
-    public void writeByte(byte value) {
-        byteBuf.writeByte(value);
-    }
-
-    public void writeShort(short value) {
-        byteBuf.writeShort(value);
-    }
-
-    public void writeInteger(int value) {
-        ReplicatedUtil.writeVarInt(byteBuf, value);
-    }
-
-    public void writeLong(long value) {
-        byteBuf.writeLong(value);
-    }
-
-    public void writeFloat(float value) {
-        byteBuf.writeFloat(value);
-    }
-    public void writeDouble(double value) {
-        byteBuf.writeDouble(value);
-    }
-
-    public void writeByteArray(byte[] bytes) {
-        if (null == bytes) {
-            writeInteger(0);
+    public void writeCharList(List<Character> value) {
+        if (null == value) {
+            writeInteger(-1);
             return;
         }
-        writeInteger(bytes.length);
-        byteBuf.writeBytes(bytes);
+        int length = value.size();
+        writeInteger(length);
+        for (char charValue : value) {
+            writeChar(charValue);
+        }
+    }
+
+    public void writeCharArray(char[] value) {
+        if (null == value) {
+            writeInteger(-1);
+            return;
+        }
+        writeInteger(value.length);
+        for (char charValue : value) {
+            writeChar(charValue);
+        }
     }
 
     public void writeString(String value) {
         if (null == value) {
+            writeInteger(-1);
+            return;
+        }else if (value.isEmpty()) {
             writeInteger(0);
             return;
         }
@@ -82,21 +99,88 @@ public class ReplicatedWriter {
         byteBuf.writeBytes(strBytes);
     }
 
-    public void writeListObj(List<? extends SerializeComponent> value) {
+    public void writeStringList(List<String> value) {
         if (null == value) {
-            writeInteger(0);
+            writeInteger(-1);
             return;
         }
         int length = value.size();
         writeInteger(length);
-        for (SerializeComponent replicate : value) {
-            replicate.serialize(this);
+        for (String stringValue : value) {
+            writeString(stringValue);
         }
     }
 
-    public void writeListInt(List<Integer> value) {
+    public void writeStringArray(String[] value) {
         if (null == value) {
-            writeInteger(0);
+            writeInteger(-1);
+            return;
+        }
+        writeInteger(value.length);
+        for (String stringValue : value) {
+            writeString(stringValue);
+        }
+    }
+
+    public void writeByte(byte value) {
+        byteBuf.writeByte(value);
+    }
+
+    public void writeByteList(List<Byte> value) {
+        if (null == value) {
+            writeInteger(-1);
+            return;
+        }
+        int length = value.size();
+        writeInteger(length);
+        for (byte byteValue : value) {
+            writeByte(byteValue);
+        }
+    }
+
+    public void writeByteArray(byte[] bytes) {
+        if (null == bytes) {
+            writeInteger(-1);
+            return;
+        }
+        writeInteger(bytes.length);
+        byteBuf.writeBytes(bytes);
+    }
+
+    public void writeShort(short value) {
+        byteBuf.writeShort(value);
+    }
+
+    public void writeShortList(List<Short> value) {
+        if (null == value) {
+            writeInteger(-1);
+            return;
+        }
+        int length = value.size();
+        writeInteger(length);
+        for (short shortValue : value) {
+            writeShort(shortValue);
+        }
+    }
+
+    public void writeShortArray(short[] value) {
+        if (null == value) {
+            writeInteger(-1);
+            return;
+        }
+        writeInteger(value.length);
+        for (short shortValue : value) {
+            writeShort(shortValue);
+        }
+    }
+
+    public void writeInteger(int value) {
+        ReplicatedUtil.writeVarInt(byteBuf, value);
+    }
+
+    public void writeIntList(List<Integer> value) {
+        if (null == value) {
+            writeInteger(-1);
             return;
         }
         int length = value.size();
@@ -106,9 +190,24 @@ public class ReplicatedWriter {
         }
     }
 
-    public void writeListLong(List<Long> value) {
+    public void writeIntArray(int[] value) {
         if (null == value) {
-            writeInteger(0);
+            writeInteger(-1);
+            return;
+        }
+        writeInteger(value.length);
+        for (int intValue : value) {
+            writeInteger(intValue);
+        }
+    }
+
+    public void writeLong(long value) {
+        byteBuf.writeLong(value);
+    }
+
+    public void writeLongList(List<Long> value) {
+        if (null == value) {
+            writeInteger(-1);
             return;
         }
         int length = value.size();
@@ -118,9 +217,24 @@ public class ReplicatedWriter {
         }
     }
 
-    public void writeListFloat(List<Float> value) {
+    public void writeLongArray(long[] value) {
         if (null == value) {
-            writeInteger(0);
+            writeInteger(-1);
+            return;
+        }
+        writeInteger(value.length);
+        for (long longValue : value) {
+            writeLong(longValue);
+        }
+    }
+
+    public void writeFloat(float value) {
+        byteBuf.writeFloat(value);
+    }
+
+    public void writeFloatList(List<Float> value) {
+        if (null == value) {
+            writeInteger(-1);
             return;
         }
         int length = value.size();
@@ -130,15 +244,66 @@ public class ReplicatedWriter {
         }
     }
 
-    public void writeListDouble(List<Double> value) {
+    public void writeFloatArray(float[] value) {
         if (null == value) {
-            writeInteger(0);
+            writeInteger(-1);
+            return;
+        }
+        writeInteger(value.length);
+        for (float floatValue : value) {
+            writeFloat(floatValue);
+        }
+    }
+
+    public void writeDouble(double value) {
+        byteBuf.writeDouble(value);
+    }
+
+    public void writeDoubleList(List<Double> value) {
+        if (null == value) {
+            writeInteger(-1);
             return;
         }
         int length = value.size();
         writeInteger(length);
         for (double doubleValue : value) {
             writeDouble(doubleValue);
+        }
+    }
+
+    public void writeDoubleArray(double[] value) {
+        if (null == value) {
+            writeInteger(-1);
+            return;
+        }
+        writeInteger(value.length);
+        for (double doubleValue : value) {
+            writeDouble(doubleValue);
+        }
+    }
+
+    public void writeObject(SerializeComponent value) {
+        if (null == value) {
+            writeBoolean(true);
+            return;
+        }
+        writeBoolean(false);
+        value.serialize(this);
+    }
+
+    public void writeObjList(List<? extends SerializeComponent> value) {
+        if (null == value) {
+            writeInteger(-1);
+            return;
+        }
+        if (value.isEmpty()) {
+            writeInteger(0);
+            return;
+        }
+        int length = value.size();
+        writeInteger(length);
+        for (SerializeComponent replicate : value) {
+            writeObject(replicate);
         }
     }
 
