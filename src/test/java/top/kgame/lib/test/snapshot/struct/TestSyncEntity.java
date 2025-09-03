@@ -12,8 +12,8 @@ import java.util.List;
 
 public class TestSyncEntity implements SerializeEntity, DeserializeEntity {
     private final List<SerializeComponent> components = new ArrayList<>();
-    private final int guid;
-    private final int type;
+    private int guid;
+    private int type;
     public TestSyncEntity(int guid, int type) {
         this.guid = guid;
         this.type = type;
@@ -24,6 +24,11 @@ public class TestSyncEntity implements SerializeEntity, DeserializeEntity {
     }
 
     @Override
+    public void setGuid(int id) {
+        this.guid = id;
+    }
+
+    @Override
     public Collection<SerializeComponent> getComponents() {
         return components;
     }
@@ -31,6 +36,11 @@ public class TestSyncEntity implements SerializeEntity, DeserializeEntity {
     @Override
     public int getGuid() {
         return guid;
+    }
+
+    @Override
+    public void setTypeId(int type) {
+        this.type = type;
     }
 
     @Override

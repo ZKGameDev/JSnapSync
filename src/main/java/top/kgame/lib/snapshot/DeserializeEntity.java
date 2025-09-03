@@ -9,4 +9,8 @@ import java.util.Collection;
  */
 public interface DeserializeEntity {
     void deserialize(ReplicatedReader reader);
+    void setGuid(int id);
+    int getGuid();
+    void setTypeId(int type);
+    int getTypeId();
 }

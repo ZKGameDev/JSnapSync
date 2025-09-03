@@ -9,20 +9,21 @@ public abstract class SnapshotServer {
     private final Set<Integer> createIds = new HashSet<>();
     private final Map<Integer, EntitySnapshotTracker> replicateInfoMap = new TreeMap<>();
     private final List<SnapshotConnection> connections = new ArrayList<>();
+    private final DeserializeFactory deserializeFactory = new DeserializeFactory();
 
     private Collection<SnapshotConnection> getAllConnection() {
         return connections;
     }
 
+    protected abstract SnapshotConnection generateConnection(long connectionId);
+
     /**
      * 注册一个客户端连接
-     * @param connection 客户端连接对象
      */
-    public void registerConnection(final SnapshotConnection connection) {
-        if (null == connection) {
-            return;
-        }
+    public SnapshotConnection registerConnection(final long connectionId) {
+        SnapshotConnection connection = generateConnection(connectionId);
         connections.add(connection);
+        return connection;
     }
 
     /**
@@ -139,5 +140,9 @@ public abstract class SnapshotServer {
      */
     public Collection<Integer> getCreateReplicateId() {
         return createIds;
+    }
+
+    public DeserializeFactory getDeserializeFactory() {
+        return deserializeFactory;
     }
 }

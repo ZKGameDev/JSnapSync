@@ -7,8 +7,8 @@ import top.kgame.lib.snapshot.SnapshotConnection;
 import java.util.Collection;
 
 public class TestSnapshotClient extends SnapshotConnection {
-    public TestSnapshotClient(long uid, DeserializeFactory deserializeFactory, TestSnapshotServer server) {
-        super(uid, deserializeFactory, server);
+    public TestSnapshotClient(long uid, TestSnapshotServer server) {
+        super(uid, server);
     }
 
     @Override

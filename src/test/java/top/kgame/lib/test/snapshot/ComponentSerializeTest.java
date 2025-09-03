@@ -11,6 +11,9 @@ import top.kgame.lib.test.snapshot.struct.TestSyncStruct;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.function.Supplier;
+import top.kgame.lib.snapshot.DeserializeFactory;
+import top.kgame.lib.test.snapshot.struct.TestSyncEntity;
 
 public class ComponentSerializeTest {
     @Test
@@ -216,5 +219,38 @@ public class ComponentSerializeTest {
         replicatedWriter.reset();
         
         System.out.println("testMaxValuesAndSpecialCases 测试通过！");
+    }
+    
+    /**
+     * 演示如何使用新的Supplier接口注册实体类型
+     */
+    @Test
+    public void testDeserializeFactoryWithSupplier() {
+        DeserializeFactory factory = new DeserializeFactory();
+        
+        // 方式1：使用Lambda表达式
+        factory.registerEntityType(100, () -> new TestSyncEntity(0, 100));
+        
+        // 方式2：使用方法引用（如果有无参构造函数）
+        // factory.registerEntityType(101, TestSyncEntity::new);
+        
+        // 方式3：使用类引用（需要无参构造函数）
+        // factory.registerEntityType(102, TestSyncEntity.class);
+        
+        // 方式4：使用匿名内部类
+        factory.registerEntityType(103, new Supplier<TestSyncEntity>() {
+            @Override
+            public TestSyncEntity get() {
+                return new TestSyncEntity(0, 103);
+            }
+        });
+        
+        // 验证注册
+        assert factory.isRegistered(100);
+        assert factory.isRegistered(103);
+        assert !factory.isRegistered(999);
+        assert factory.getRegisteredTypeCount() == 2;
+        
+        System.out.println("testDeserializeFactoryWithSupplier 测试通过！");
     }
 }

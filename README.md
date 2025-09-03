@@ -117,12 +117,16 @@ public class Player implements SerializeEntity, DeserializeEntity {
 public class GameSnapshotServer extends SnapshotServer {
     
     public void initializeGame() {
+        // 注册实体类型到反序列化工厂
+        getDeserializeFactory().registerEntityType(100, () -> new Player(0));
+        getDeserializeFactory().registerEntityType(101, () -> new Monster(0));
+        
         // 注册玩家实体
         Player player = new Player(1001);
         registerEntity(player);
         
         // 注册客户端连接
-        GameConnection connection = new GameConnection(userId, deserializeFactory, this);
+        GameConnection connection = new GameConnection(userId, this);
         registerConnection(connection);
     }
     
@@ -212,6 +216,36 @@ mvn test
 2. **类型ID唯一性**：确保组件和实体的类型ID在系统中唯一
 3. **序列化顺序**：serialize和deserialize方法中的字段顺序必须严格对应
 4. **内存管理**：大型游戏建议定期清理过期快照缓冲
+5. **实体类型注册**：使用Supplier接口注册实体类型，避免反射调用开销
+
+## 🔧 实体类型注册
+
+JSnapSync 使用 Supplier 接口进行实体类型注册，提供多种注册方式：
+
+### 方式1：Lambda表达式
+```java
+factory.registerEntityType(100, () -> new Player(0));
+```
+
+### 方式2：方法引用（需要无参构造函数）
+```java
+factory.registerEntityType(101, Player::new);
+```
+
+### 方式3：类引用（需要无参构造函数）
+```java
+factory.registerEntityType(102, Player.class);
+```
+
+### 方式4：匿名内部类
+```java
+factory.registerEntityType(103, new Supplier<Player>() {
+    @Override
+    public Player get() {
+        return new Player(0);
+    }
+});
+```
 
 ## 📄 许可证
 

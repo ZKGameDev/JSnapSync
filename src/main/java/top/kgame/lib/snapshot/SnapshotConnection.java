@@ -22,9 +22,9 @@ public abstract class SnapshotConnection {
     private int outSequence;
     private int lastSnapshotAck;
 
-    public SnapshotConnection(long uid, DeserializeFactory deserializeFactory, SnapshotServer snapshotServer) {
+    public SnapshotConnection(long uid, SnapshotServer snapshotServer) {
         this.uid = uid;
-        this.deserializeFactory = deserializeFactory;
+        this.deserializeFactory = snapshotServer.getDeserializeFactory();
         this.snapshotServer = snapshotServer;
     }
 
