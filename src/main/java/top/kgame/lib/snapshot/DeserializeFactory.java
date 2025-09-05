@@ -8,13 +8,11 @@ import java.util.function.Supplier;
 
 /**
  * 反序列化工厂类，负责根据类型ID创建和反序列化实体对象
- * 使用Supplier模式替代反射，提供更好的性能和类型安全性
  */
 public class DeserializeFactory {
     
     /**
      * 类型ID到实体创建器的映射
-     * 使用Supplier替代Constructor，避免反射调用开销
      */
     private final Map<Integer, Supplier<? extends DeserializeEntity>> entitySuppliers = new HashMap<>();
 

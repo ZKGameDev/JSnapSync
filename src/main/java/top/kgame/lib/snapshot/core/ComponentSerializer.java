@@ -17,6 +17,7 @@ public class ComponentSerializer {
 
     public byte[] serialize() {
         ReplicatedWriter writer = ReplicatedWriter.getInstance();
+        writer.writeInteger(serializer.getTypeId());
         serializer.serialize(writer);
         writer.reset();
         return writer.toBytes();
