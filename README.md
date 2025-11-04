@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Java](https://img.shields.io/badge/Java-21+-orange.svg)](https://www.oracle.com/java/technologies/javase-downloads.html)
 
-JSnapSync 是一个专为游戏服务器设计的Java快照同步库，提供高效的实体状态同步解决方案。它支持组件级别的增量快照同步，能够在保证数据一致性的同时显著减少网络传输开销。
+JSnapSync 是一个专为游戏服务器设计的Java快照同步库。基于实体-组件模式，支持组件级别的增量快照同步。
 
 ## 🚀 核心特性
 
