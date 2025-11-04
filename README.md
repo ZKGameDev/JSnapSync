@@ -260,8 +260,7 @@ factory.registerEntityType(103, new Supplier<Player>() {
 
 ## 📋 后续开发计划
 
-- 多线程支持(进行中)
-- 脱离System的Entity-Component框架(未开始)
+- Entity支持嵌套(进行中)
 
 ## 🔗 相关链接
 
