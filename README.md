@@ -22,7 +22,7 @@ JSnapSync 是一个专为游戏服务器设计的Java快照同步库。基于实
 
 JSnapSync 采用以下核心架构：
 
-### 同步实体层次结构
+#### 同步实体层次结构
 ```
 同步实体 (SerializeEntity)
 ├── 同步组件1 (SerializeComponent)
@@ -33,7 +33,7 @@ JSnapSync 采用以下核心架构：
 └── 同步组件3 (SerializeComponent)
 ```
 
-### 消息结构
+#### 消息结构
 JSnapSync 使用二进制协议进行高效数据传输：
 
 ```
@@ -47,7 +47,7 @@ JSnapSync 使用二进制协议进行高效数据传输：
 - 支持增量同步
 - 自动处理数据类型和长度编码
 
-### 核心组件
+#### 核心组件
 
 - **SnapshotServer**：快照服务器，管理实体注册和快照生成
 - **SnapshotConnection**：客户端连接，处理个性化快照发送
@@ -57,7 +57,7 @@ JSnapSync 使用二进制协议进行高效数据传输：
 
 ## 🔧 快速开始
 
-### 1. 定义同步组件
+#### 1. 定义同步组件
 
 ```java
 public class PlayerComponent implements SerializeComponent, DeserializeComponent {
@@ -88,7 +88,7 @@ public class PlayerComponent implements SerializeComponent, DeserializeComponent
 }
 ```
 
-### 2. 定义同步实体
+#### 2. 定义同步实体
 
 ```java
 public class Player implements SerializeEntity, DeserializeEntity {
@@ -123,7 +123,7 @@ public class Player implements SerializeEntity, DeserializeEntity {
 }
 ```
 
-### 3. 创建快照服务器
+#### 3. 创建快照服务器
 
 ```java
 public class GameSnapshotServer extends SnapshotServer {
@@ -149,7 +149,7 @@ public class GameSnapshotServer extends SnapshotServer {
 }
 ```
 
-### 4. 实现客户端连接
+#### 4. 实现客户端连接
 
 ```java
 public class GameConnection extends SnapshotConnection {
@@ -176,21 +176,21 @@ public class GameConnection extends SnapshotConnection {
 
 JSnapSync 支持丰富的数据类型序列化：
 
-### 基础类型
+#### 基础类型
 - `byte`, `char`, `boolean`, `short`, `int`, `long`, `float`, `double`
 - `String`, `byte[]`
 
-### 集合类型
+#### 集合类型
 - `List<T>` (支持所有基础类型的List)
 - 基础类型数组 (`int[]`, `String[]`, 等)
 
-### 自定义对象
+#### 自定义对象
 - 实现 `SerializeStruct` 接口的自定义结构体
 - 支持嵌套对象和对象集合
 
 ## ⚙️ 高级特性
 
-### 增量快照
+#### 增量快照
 系统自动检测组件变化，仅发送修改过的数据：
 ```java
 // 如果玩家血量改变，只同步PlayerComponent
@@ -198,7 +198,7 @@ player.getComponent(PlayerComponent.class).setHealth(80.0f);
 // 下次快照只会包含PlayerComponent的变更数据
 ```
 
-### 快照缓冲
+#### 快照缓冲
 内置缓冲机制支持：
 - 历史快照查询
 - 差异计算
@@ -229,22 +229,22 @@ mvn test
 
 JSnapSync 使用 Supplier 接口进行实体类型注册，提供多种注册方式：
 
-### 方式1：Lambda表达式
+#### 方式1：Lambda表达式
 ```java
 factory.registerEntityType(100, () -> new Player(0));
 ```
 
-### 方式2：方法引用（需要无参构造函数）
+#### 方式2：方法引用（需要无参构造函数）
 ```java
 factory.registerEntityType(101, Player::new);
 ```
 
-### 方式3：类引用（需要无参构造函数）
+#### 方式3：类引用（需要无参构造函数）
 ```java
 factory.registerEntityType(102, Player.class);
 ```
 
-### 方式4：匿名内部类
+#### 方式4：匿名内部类
 ```java
 factory.registerEntityType(103, new Supplier<Player>() {
     @Override
@@ -258,7 +258,7 @@ factory.registerEntityType(103, new Supplier<Player>() {
 
 本项目采用 Apache License 2.0 许可证。详细信息请查看 [LICENSE](LICENSE) 文件。
 
-## 后续开发计划
+## 📋 后续开发计划
 
 - 多线程支持(进行中)
 - 脱离System的Entity-Component框架(未开始)
