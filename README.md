@@ -260,7 +260,8 @@ factory.registerEntityType(103, new Supplier<Player>() {
 
 ## 📋 后续开发计划
 
-- Entity支持嵌套(进行中)
+- 二进制快照反序列化可视化工具 (进行中)
+- 支持回放的快照数据存储模块 (未开始)
 
 ## 🔗 相关链接
 
